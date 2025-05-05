@@ -6,10 +6,64 @@
     <title>VARIKOZ OFF KLINIKASI</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
+    <!-- Floating Telegram Inquiry -->
+    <div class="floating-telegram-inquiry">
+        <div class="inquiry-header">
+            <i class="fab fa-telegram"></i>
+            <span class="lang-uz">Telegramda narxni bilish</span>
+            <span class="lang-ru">Узнайте цену лечения в Telegram-боте</span>
+            <button class="close-inquiry"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="inquiry-content">
+            <p class="inquiry-step">
+                <span class="lang-uz">Savol: 1 dan 3</span>
+                <span class="lang-ru">Вопрос: 1 из 3</span>
+            </p>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p class="inquiry-question mt-3">
+                <span class="lang-uz">Alomatlarni tanlang</span>
+                <span class="lang-ru">Выберите симптомы</span>
+            </p>
+            <div class="inquiry-options">
+                <a href="https://t.me/your_bot_username" target="_blank" class="inquiry-option">
+                    <div class="option-icon"><i class="fas fa-diagnoses"></i></div>
+                    <div class="option-text">
+                        <span class="lang-uz">Varikoz venalar</span>
+                        <span class="lang-ru">Варикоз вен</span>
+                    </div>
+                </a>
+                <a href="https://t.me/your_bot_username" target="_blank" class="inquiry-option">
+                    <div class="option-icon"><i class="fas fa-tired"></i></div>
+                    <div class="option-text">
+                        <span class="lang-uz">Oyoqlar og'rigi</span>
+                        <span class="lang-ru">Болят ноги</span>
+                    </div>
+                </a>
+                <a href="https://t.me/your_bot_username" target="_blank" class="inquiry-option">
+                    <div class="option-icon"><i class="fas fa-weight"></i></div>
+                    <div class="option-text">
+                        <span class="lang-uz">Oyoqlar shishi</span>
+                        <span class="lang-ru">Отекают ноги</span>
+                    </div>
+                </a>
+                <a href="https://t.me/your_bot_username" target="_blank" class="inquiry-option">
+                    <div class="option-icon"><i class="fas fa-ellipsis-h"></i></div>
+                    <div class="option-text">
+                        <span class="lang-uz">Boshqa...</span>
+                        <span class="lang-ru">Другой...</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -72,7 +126,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-4 mb-lg-0 fade-in-left">
                     <div class="doctor-image-container">
-                        <img src="img/doktor-1.png" alt="Doktor s pacientem" class="img-fluid">
+                        <img src="img/photo_2025-04-29_13-58-15.jpg" alt="Doktor s pacientem" class="img-fluid">
                     </div>
                 </div>
                 <div class="col-lg-6 fade-in-right">
@@ -579,87 +633,82 @@
     </section>
 
     <!-- Testimonial Section -->
-    <section class="testimonial py-5 bg-light">
-        <div class="container">
-            <div class="section-title text-center mb-5 fade-in">
-                <h2>
-                    <span class="lang-uz">Mijozlarimiz fikrlari</span>
-                    <span class="lang-ru">Отзывы наших клиентов</span>
-                </h2>
+<!-- Testimonials Section -->
+<section class="testimonial py-5 bg-light" id="testimonial">
+    <div class="container">
+        <div class="section-title text-center mb-5" data-aos="fade-up">
+            <h2>
+                <span class="lang-uz">Mijozlarimiz fikrlari</span>
+                <span class="lang-ru">Отзывы наших клиентов</span>
+            </h2>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Testimonial Card -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card border-0 shadow rounded-4 overflow-hidden">
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <video class="w-100" controls poster="poster.jpg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" playsinline>
+                            <source src="vidios/video_2025-04-22_22-39-51.mp4" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="fs-6 fst-italic lang-uz">
+                            "Varikoz OFF klinikasiga katta rahmat! Oyoqlarimdagi og'riq yo'qoldi va hayot sifatim oshdi."
+                        </p>
+                        <p class="fs-6 fst-italic lang-ru">
+                            "Спасибо Varikoz OFF! Боли прошли и я снова наслаждаюсь жизнью."
+                        </p>
+                        <h5 class="fw-bold mb-0">Salomov .Q</h5>
+                    </div>
+                </div>
             </div>
-            <div class="row justify-content-center">
-                <!-- First Testimonial -->
-                <div class="col-lg-4 mb-4">
-                    <div class="testimonial-card text-center p-4 fade-in-up">
-                        <div class="testimonial-video">
-                            <!-- Video placeholder - client will add video link here -->
-                            <div class="ratio ratio-16x9 mb-3">
-                                <div class="bg-secondary d-flex align-items-center justify-content-center rounded">
-                                    <i class="fas fa-video fa-3x text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="testimonial-text mt-3">
-                            <p class="fs-5 fst-italic lang-uz">
-                                "Varikoz OFF klinikasiga katta rahmat! Ular menga muammolarimni hal qilishda yordam berdilar. Davolanishdan so'ng, oyoqlarimdagi og'riq yo'qoldi va men yana to'liq hayotdan zavqlana oldim."
-                            </p>
-                            <p class="fs-5 fst-italic lang-ru">
-                                "Большое спасибо клинике Varikoz OFF! Они помогли мне решить мои проблемы. После лечения боль в ногах прошла, и я снова могу наслаждаться полноценной жизнью."
-                            </p>
-                            <h5 class="mb-0">Нилуфар К.</h5>
-                        </div>
+
+            <!-- Second -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card border-0 shadow rounded-4 overflow-hidden">
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <video class="w-100" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" playsinline>
+                            <source src="vidios/video_2025-04-22_22-39-39.mp4" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="fs-6 fst-italic lang-uz">
+                            "Qatarlik bemorimiz bizga murojaat qildilar va shifo topdilar."
+                        </p>
+                        <p class="fs-6 fst-italic lang-ru">
+                            "Наш Kатарский пациент связался с нами и выздоровел"
+                        </p>
+                        <h5 class="fw-bold mb-0">Kanishka.X</h5>
                     </div>
                 </div>
-                
-                <!-- Second Testimonial -->
-                <div class="col-lg-4 mb-4">
-                    <div class="testimonial-card text-center p-4 fade-in-up delay-1">
-                        <div class="testimonial-video">
-                            <!-- Video placeholder - client will add video link here -->
-                            <div class="ratio ratio-16x9 mb-3">
-                                <div class="bg-secondary d-flex align-items-center justify-content-center rounded">
-                                    <i class="fas fa-video fa-3x text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="testimonial-text mt-3">
-                            <p class="fs-5 fst-italic lang-uz">
-                                "Oyoqlarimdagi varikoz tomirlari meni ko'p yillar davomida bezovta qilgan edi. Varikoz OFF klinikasida davolanishdan so'ng, og'riqlarim yo'qoldi va hayot sifatim sezilarli darajada yaxshilandi."
-                            </p>
-                            <p class="fs-5 fst-italic lang-ru">
-                                "Варикозные вены на ногах беспокоили меня много лет. После лечения в клинике Varikoz OFF боли исчезли, и качество моей жизни значительно улучшилось."
-                            </p>
-                            <h5 class="mb-0">Азиза М.</h5>
-                        </div>
+            </div>
+
+            <!-- Third -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card border-0 shadow rounded-4 overflow-hidden">
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <video class="w-100" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" playsinline>
+                            <source src="vidios/video_2025-04-22_22-38-41.mp4" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
                     </div>
-                </div>
-                
-                <!-- Third Testimonial -->
-                <div class="col-lg-4 mb-4">
-                    <div class="testimonial-card text-center p-4 fade-in-up delay-2">
-                        <div class="testimonial-video">
-                            <!-- Video placeholder - client will add video link here -->
-                            <div class="ratio ratio-16x9 mb-3">
-                                <div class="bg-secondary d-flex align-items-center justify-content-center rounded">
-                                    <i class="fas fa-video fa-3x text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="testimonial-text mt-3">
-                            <p class="fs-5 fst-italic lang-uz">
-                                "Men uzoq vaqt davomida turli klinikalarga bordim, lekin Varikoz OFF klinikasida tez va samarali davolanishim mumkin bo'ldi. Professional shifokorlar va zamonaviy uskunalar bilan ta'minlangan. Tavsiya qilaman!"
-                            </p>
-                            <p class="fs-5 fst-italic lang-ru">
-                                "Я долгое время обращалась в различные клиники, но только в клинике Varikoz OFF смогла получить быстрое и эффективное лечение. Оснащена профессиональными врачами и современным оборудованием. Рекомендую!"
-                            </p>
-                            <h5 class="mb-0">Диляра Т.</h5>
-                        </div>
+                    <div class="card-body text-center">
+                        <p class="fs-6 fst-italic lang-uz">
+                            "Turkmanistondan kelgan bemorimiz bizga murojaat qildilar va shifo topdilar."
+                        </p>
+                        <p class="fs-6 fst-italic lang-ru">
+                            "Наша пациентка из Туркменистана связалась с нами и выздоровела"
+                        </p>
+                        <h5 class="fw-bold mb-0">Диляра Т.</h5>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
+    </div>
+</section>
     <!-- FAQ Section -->
     <section class="faq py-5">
         <div class="container">
@@ -769,7 +818,7 @@
                             <span class="lang-ru">г. Бухара, улица Баховутдина Накшбандия дом 153</span>
                         </p>
                         
-                        <h3 class="mt-4">
+                        <!-- <h3 class="mt-4">
                             <i class="fas fa-phone-alt me-2"></i>
                             <span class="lang-uz">Telefon raqamlar</span>
                             <span class="lang-ru">Телефонные номера</span>
@@ -783,7 +832,7 @@
                             <span class="lang-uz">Qo'ng'iroq markazi:</span>
                             <span class="lang-ru">Колл-центр:</span> 
                             <a href="tel:+998785552122">78 555 21 22</a>
-                        </p>
+                        </p> -->
                         
                         <h3 class="mt-4">
                             <i class="fas fa-clock me-2"></i>
@@ -841,7 +890,7 @@
             <hr class="mt-4 mb-4">
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <p class="mb-0">&copy; 2024 VARIKOZ OFF <span class="lang-uz">Barcha huquqlar himoyalangan.</span><span class="lang-ru">Все права защищены.</span></p>
+                    <p class="mb-0">&copy; 2025 VARIKOZ OFF <span class="lang-uz">Barcha huquqlar himoyalangan.</span><span class="lang-ru">Все права защищены.</span></p>
                 </div>
             </div>
         </div>

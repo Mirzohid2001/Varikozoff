@@ -778,6 +778,22 @@ body {
     border: 3px solid var(--primary-color);
 }
 
+.testimonial-card .testimonial-video video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+}
+
+
+.testimonial-card .ratio video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
 /* Contact Section */
 .contact {
     padding: 5rem 0;
@@ -1502,5 +1518,182 @@ body {
     .hero .btn-primary {
         font-size: 0.9rem;
         padding: 0.6rem 1.5rem;
+    }
+}
+
+/* Floating Telegram Inquiry */
+.floating-telegram-inquiry {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+    z-index: 9999;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 1;
+    transform: translateY(0);
+    border: 1px solid rgba(0, 136, 204, 0.1);
+}
+
+.floating-telegram-inquiry.hidden {
+    transform: translateY(20px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.inquiry-header {
+    background: linear-gradient(135deg, #0088cc, #29b6f6);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: #fff;
+}
+
+.inquiry-header i.fa-telegram {
+    color: #fff;
+    font-size: 24px;
+    margin-right: 12px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.inquiry-header span {
+    font-weight: 600;
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.close-inquiry {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.close-inquiry:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.inquiry-content {
+    padding: 18px;
+}
+
+.inquiry-step {
+    margin-bottom: 8px;
+    color: #777;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.inquiry-step::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #0c8a7b;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.progress {
+    height: 6px;
+    background-color: #eef2f7;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #0c8a7b, #36c7b7);
+    transition: width 0.3s ease;
+}
+
+.inquiry-question {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.inquiry-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.inquiry-option {
+    background-color: #f0f7ff;
+    color: #333;
+    border-radius: 12px;
+    padding: 15px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    border: 1px solid rgba(0, 136, 204, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.option-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #0c8a7b, #36c7b7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    color: white;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.option-text {
+    text-align: left;
+    flex-grow: 1;
+}
+
+.inquiry-option:hover {
+    background-color: #e1f0ff;
+    transform: translateY(-3px);
+    color: #0088cc;
+    box-shadow: 0 5px 15px rgba(0, 136, 204, 0.15);
+}
+
+.inquiry-option:hover .option-icon {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #0088cc, #29b6f6);
+}
+
+@media (max-width: 576px) {
+    .floating-telegram-inquiry {
+        width: calc(100% - 40px);
+        bottom: 10px;
+        right: 20px;
+    }
+    
+    .inquiry-options {
+        grid-template-columns: 1fr;
     }
 } 

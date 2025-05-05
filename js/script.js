@@ -1,23 +1,10 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Language Switcher
     const langUz = document.getElementById('langUz');
     const langRu = document.getElementById('langRu');
     const uzElements = document.querySelectorAll('.lang-uz');
     const ruElements = document.querySelectorAll('.lang-ru');
 
-    // Set default language
-    showLanguage('uz');
-
-    // Language buttons event listeners
-    langUz.addEventListener('click', function() {
-        showLanguage('uz');
-    });
-
-    langRu.addEventListener('click', function() {
-        showLanguage('ru');
-    });
-
-    // Language switch function
     function showLanguage(lang) {
         if (lang === 'uz') {
             uzElements.forEach(el => el.style.display = 'inline-block');
@@ -32,321 +19,181 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Enhanced Service Cards Interaction
+    showLanguage('uz');
+
+    langUz?.addEventListener('click', () => showLanguage('uz'));
+    langRu?.addEventListener('click', () => showLanguage('ru'));
+
+    // Hover effect on service cards
     const serviceCards = document.querySelectorAll('.service-card');
     serviceCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-8px)';
             this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.15)';
-            
-            // Add shine effect animation
             const serviceImage = this.querySelector('.service-image');
             if (serviceImage && !serviceImage.classList.contains('shine')) {
                 serviceImage.classList.add('shine');
             }
         });
-        
-        card.addEventListener('mouseleave', function() {
+        card.addEventListener('mouseleave', function () {
             this.style.transform = '';
             this.style.boxShadow = '';
-            
-            // Keep the shine class to allow the animation to finish naturally
         });
     });
 
-    // Handle Modal Transitions - Fix freezing issue
+    // Modal fix
     const serviceModals = document.querySelectorAll('.service-modal');
     serviceModals.forEach(modal => {
-        modal.addEventListener('hidden.bs.modal', function() {
-            // Clear any transform styles that might be lingering
+        modal.addEventListener('hidden.bs.modal', function () {
             serviceCards.forEach(card => {
                 card.style.transform = '';
                 card.style.boxShadow = '';
             });
-            
-            // Refresh language display when a modal is closed
-            if (langUz.classList.contains('active')) {
-                showLanguage('uz');
-            } else {
-                showLanguage('ru');
-            }
-            
-            // Remove any backdrop elements that might be stuck
-            const backdrops = document.querySelectorAll('.modal-backdrop');
-            backdrops.forEach(backdrop => {
-                backdrop.classList.remove('show');
-                setTimeout(() => {
-                    backdrop.remove();
-                }, 300);
+            showLanguage(langUz.classList.contains('active') ? 'uz' : 'ru');
+            document.querySelectorAll('.modal-backdrop').forEach(b => {
+                b.classList.remove('show');
+                setTimeout(() => b.remove(), 300);
             });
-            
-            // Ensure body scroll is restored
             document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
         });
     });
 
-    // Add appointment button in service modals
-    const appointmentButtonsInModals = document.querySelectorAll('.service-modal .modal-footer .btn-primary');
-    appointmentButtonsInModals.forEach(button => {
-        button.addEventListener('click', function() {
-            // Get the service name from the modal title
-            const modal = this.closest('.modal');
-            const serviceTitle = modal.querySelector('.modal-title').innerText.trim();
-            
-            // Set a timeout to update the comment field after the appointment modal is shown
-            setTimeout(() => {
-                const commentField = document.getElementById('comment');
-                if (commentField) {
-                    const isUzbekLanguage = langUz.classList.contains('active');
-                    const servicePrefix = isUzbekLanguage ? 'Xizmat turi: ' : 'Тип услуги: ';
-                    commentField.value = servicePrefix + serviceTitle;
-                }
-            }, 500);
-            
-            // Close the service modal before opening the appointment modal
-            const serviceModal = bootstrap.Modal.getInstance(modal);
-            if (serviceModal) {
-                serviceModal.hide();
-            }
-        });
-    });
+    // Telegram settings
+    const TELEGRAM_BOT_TOKEN = '6853813357:AAH0yTSFVB3gXTGDDZHJYQPqeqgmjrCL_aM';
+    const TELEGRAM_CHAT_ID = '1051923866';
 
-    // Telegram bot settings - Replace with your actual bot token and chat ID
-    const TELEGRAM_BOT_TOKEN = '6853813357:AAH0yTSFVB3gXTGDDZHJYQPqeqgmjrCL_aM'; // Replace with your bot token
-    const TELEGRAM_CHAT_ID = '1051923866'; // Replace with your chat ID
-
-    // Function to send message to Telegram
     async function sendToTelegram(message) {
         try {
             const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML' })
             });
-            
             const data = await response.json();
-            
-            if (data.ok) {
-                return true;
-            } else {
-                console.error('Failed to send message to Telegram:', data);
-                return false;
-            }
+            return data.ok;
         } catch (error) {
-            console.error('Error sending to Telegram:', error);
+            console.error('Telegram error:', error);
             return false;
         }
     }
 
-    // Appointment Form Handling
+    // Form handler
     const appointmentForm = document.getElementById('appointmentForm');
     const submitBtn = document.querySelector('button[form="appointmentForm"]');
-    
-    async function handleFormSubmission() {
-        // Show loading state
-        const submitButton = document.querySelector('button[form="appointmentForm"]');
-        const originalButtonText = submitButton.innerHTML;
-        const loadingSpinner = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ';
-        
-        const isUzbekLanguage = langUz.classList.contains('active');
-        submitButton.innerHTML = loadingSpinner + (isUzbekLanguage ? '<span>Yuborilmoqda...</span>' : '<span>Отправка...</span>');
-        submitButton.disabled = true;
-        
-        // Get form values
-        const fullName = document.getElementById('fullName').value;
-        const phoneNumber = document.getElementById('phoneNumber').value;
-        const comment = document.getElementById('comment').value;
-        
-        // Format message for Telegram
-        const currentDate = new Date().toLocaleString();
-        const message = `🆕 <b>Yangi mijoz</b>
 
-<b>Ismi:</b> ${fullName}
-<b>Telefon:</b> ${phoneNumber}
-<b>Izoh:</b> ${comment || 'Berilmagan'}
-<b>Sana:</b> ${currentDate}
-<b>Manba:</b> Varikoz Off veb-sayt`;
-        
-        // Send to Telegram
+    async function handleFormSubmission() {
+        const submitButton = submitBtn;
+        const originalText = submitButton.innerHTML;
+        const spinner = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ';
+        const isUz = langUz.classList.contains('active');
+
+        submitButton.innerHTML = spinner + (isUz ? '<span>Yuborilmoqda...</span>' : '<span>Отправка...</span>');
+        submitButton.disabled = true;
+
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phoneNumber').value;
+        const comment = document.getElementById('comment').value;
+        const currentDate = new Date().toLocaleString();
+
+        const message = `🆕 <b>Yangi mijoz</b>\n\n<b>Ismi:</b> ${fullName}\n<b>Telefon:</b> ${phone}\n<b>Izoh:</b> ${comment || 'Berilmagan'}\n<b>Sana:</b> ${currentDate}\n<b>Manba:</b> Varikoz Off veb-sayt`;
+
         const success = await sendToTelegram(message);
-        
-        // Reset button state
-        submitButton.innerHTML = originalButtonText;
+        submitButton.innerHTML = originalText;
         submitButton.disabled = false;
-        
-        // Create success/error message based on current language
-        let resultMessage = '';
-        if (success) {
-            if (isUzbekLanguage) {
-                resultMessage = 'Murojaatingiz qabul qilindi! Tez orada siz bilan bog\'lanamiz.';
-            } else {
-                resultMessage = 'Ваша заявка принята! Мы свяжемся с вами в ближайшее время.';
-            }
-        } else {
-            if (isUzbekLanguage) {
-                resultMessage = 'Murojaatingizni yuborishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring yoki telefon orqali bog\'laning.';
-            } else {
-                resultMessage = 'Произошла ошибка при отправке вашей заявки. Пожалуйста, попробуйте позже или свяжитесь по телефону.';
-            }
-        }
-        
-        // Show alert with animation
-        const alertContainer = document.createElement('div');
-        alertContainer.className = 'alert-container';
-        alertContainer.innerHTML = `<div class="custom-alert ${success ? 'success' : 'error'} fade-in-up">${resultMessage}</div>`;
-        document.body.appendChild(alertContainer);
-        
+
+        const alert = document.createElement('div');
+        alert.className = 'alert-container';
+        alert.innerHTML = `<div class="custom-alert ${success ? 'success' : 'error'} fade-in-up">
+            ${isUz
+                ? success ? 'Murojaatingiz qabul qilindi! Tez orada siz bilan bog‘lanamiz.' : 'Xatolik yuz berdi. Qaytadan urinib ko‘ring.'
+                : success ? 'Ваша заявка принята! Мы скоро свяжемся с вами.' : 'Произошла ошибка. Повторите попытку.'}
+        </div>`;
+        document.body.appendChild(alert);
+
         setTimeout(() => {
-            alertContainer.querySelector('.custom-alert').classList.add('fade-out');
-            setTimeout(() => {
-                document.body.removeChild(alertContainer);
-            }, 500);
+            alert.querySelector('.custom-alert').classList.add('fade-out');
+            setTimeout(() => alert.remove(), 500);
         }, 3000);
-        
-        // Reset form
-        if (appointmentForm) {
+
+        if (success && appointmentForm) {
             appointmentForm.reset();
-        }
-        
-        // Close modal only if successful
-        if (success) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
-            if (modal) {
-                modal.hide();
-            } else {
-                // Fallback if modal instance not found
-                const modalElement = document.getElementById('appointmentModal');
-                if (modalElement) {
-                    modalElement.classList.remove('show');
-                    modalElement.style.display = 'none';
-                    document.body.classList.remove('modal-open');
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                }
-            }
+            modal?.hide();
         }
     }
-    
+
     if (appointmentForm) {
-        appointmentForm.addEventListener('submit', function(e) {
+        appointmentForm.addEventListener('submit', e => {
             e.preventDefault();
             handleFormSubmission();
         });
     }
-    
-    if (submitBtn) {
-        submitBtn.addEventListener('click', function(e) {
-            // Check if the form is valid
-            if (appointmentForm && appointmentForm.checkValidity()) {
-                e.preventDefault();
-                handleFormSubmission();
-            }
-        });
-    }
+    submitBtn?.addEventListener('click', e => {
+        if (appointmentForm.checkValidity()) {
+            e.preventDefault();
+            handleFormSubmission();
+        }
+    });
 
-    // Phone number formatting - simplified to just preserve user input
+    // Phone input formatting
     const phoneInput = document.getElementById('phoneNumber');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            // Allow any input format - the validation was causing issues
-            // Just ensure it starts with +998 if user didn't type it
-            let value = e.target.value;
-            if (value.length > 0 && !value.includes('+998') && !value.startsWith('998')) {
-                // Only prepend once if needed
-                if (!value.startsWith('+')) {
-                    value = '+998 ' + value;
-                    e.target.value = value;
-                }
-            }
-        });
-    }
+    phoneInput?.addEventListener('input', function (e) {
+        let val = e.target.value;
+        if (val.length > 0 && !val.includes('+998') && !val.startsWith('998') && !val.startsWith('+')) {
+            e.target.value = '+998 ' + val;
+        }
+    });
 
-    // Enhanced Scroll Animation Function
+    // Animate on scroll
     function animateElementsOnScroll() {
         const elements = document.querySelectorAll('.animate-on-scroll');
-        const windowHeight = window.innerHeight;
-        
-        elements.forEach(element => {
-            const elementPosition = element.getBoundingClientRect().top;
-            const elementVisible = 100; // Adjust this value to change when the animation triggers
-            
-            if (elementPosition < windowHeight - elementVisible) {
-                element.classList.add('animated');
-                
-                // Apply staggered animation to child elements if they exist
-                const children = element.querySelectorAll('.stagger-item');
-                if (children.length > 0) {
-                    children.forEach((child, index) => {
-                        setTimeout(() => {
-                            child.classList.add('animated');
-                        }, 100 * index);
-                    });
-                }
+        const height = window.innerHeight;
+        elements.forEach(el => {
+            const top = el.getBoundingClientRect().top;
+            if (top < height - 100) {
+                el.classList.add('animated');
+                const children = el.querySelectorAll('.stagger-item');
+                children.forEach((child, i) => {
+                    setTimeout(() => child.classList.add('animated'), 100 * i);
+                });
             }
         });
     }
-    
-    // Add scroll event listener
+
     window.addEventListener('scroll', animateElementsOnScroll);
     window.addEventListener('resize', animateElementsOnScroll);
-    
-    // Trigger animations on page load
     setTimeout(animateElementsOnScroll, 300);
 
-    // Add ripple effect to buttons
-    const buttons = document.querySelectorAll('.btn');
-    buttons.forEach(button => {
-        if (!button.classList.contains('ripple')) {
-            button.classList.add('ripple');
-        }
-    });
+    // Ripple effect
+    document.querySelectorAll('.btn').forEach(btn => btn.classList.add('ripple'));
 
-    // Enhance header on scroll
+    // Header scroll style
     const header = document.querySelector('.header');
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 100) {
-            header.classList.add('header-scrolled');
-        } else {
-            header.classList.remove('header-scrolled');
-        }
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) header.classList.add('header-scrolled');
+        else header.classList.remove('header-scrolled');
     });
 
-    // Parallax effect for hero section
-    const heroSection = document.querySelector('.hero');
-    window.addEventListener('scroll', function() {
-        if (heroSection) {
-            const scrollValue = window.scrollY;
-            heroSection.style.backgroundPositionY = `${scrollValue * 0.5}px`;
-        }
+    // Parallax effect
+    const hero = document.querySelector('.hero');
+    window.addEventListener('scroll', () => {
+        if (hero) hero.style.backgroundPositionY = `${window.scrollY * 0.5}px`;
     });
 
-    // Add float animation to specified elements
-    const floatElements = document.querySelectorAll('.float-element');
-    floatElements.forEach(element => {
-        element.classList.add('float');
-    });
+    // Floating elements
+    document.querySelectorAll('.float-element').forEach(el => el.classList.add('float'));
 
-    // Enhance service cards hover effect
+    // Hover effect on service content
     document.querySelectorAll('.service-content').forEach(content => {
         const title = content.querySelector('h4');
         const btn = content.querySelector('.btn-more');
-        
         if (title && btn) {
             content.addEventListener('mouseenter', () => {
                 title.style.color = '#045b4c';
                 btn.style.backgroundColor = 'rgba(12, 138, 123, 0.1)';
             });
-            
             content.addEventListener('mouseleave', () => {
                 title.style.color = '';
                 btn.style.backgroundColor = '';
@@ -354,39 +201,134 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Smooth scroll for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                // Close mobile menu if open
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                    const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function (e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                const navCollapse = document.querySelector('.navbar-collapse');
+                if (navCollapse?.classList.contains('show')) {
+                    const bsCollapse = new bootstrap.Collapse(navCollapse);
                     bsCollapse.hide();
                 }
-                
-                window.scrollTo({
-                    top: targetElement.offsetTop - 80, // Offset for header height
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
             }
         });
     });
 
-    // Initialize all tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
     });
 
-    // Add CSS class to the body when page is fully loaded
-    window.addEventListener('load', function() {
+    // Page loaded
+    window.addEventListener('load', () => {
         document.body.classList.add('page-loaded');
     });
-}); 
+
+    // ✅ Video testimonials enhancements
+    const testimonialVideos = document.querySelectorAll('.testimonial video');
+    testimonialVideos.forEach(video => {
+        video.autoplay = false;
+        video.controls = true;
+        video.setAttribute('preload', 'metadata');
+        if (!video.hasAttribute('poster')) {
+            video.setAttribute('poster', '/static/img/video-placeholder.jpg');
+        }
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 });
+        video.classList.add('testimonial-video-animated');
+        observer.observe(video);
+    });
+
+    // Floating Telegram Inquiry
+    const floatingInquiry = document.querySelector('.floating-telegram-inquiry');
+    const closeInquiryBtn = document.querySelector('.close-inquiry');
+    
+    // Initialize variables to control visibility
+    let inquiryVisible = true;
+    let inquiryTimeout = null;
+    
+    // Show inquiry with animation after a short delay
+    setTimeout(() => {
+        if (floatingInquiry) {
+            floatingInquiry.classList.add('animate__animated', 'animate__fadeInUp');
+        }
+    }, 2000);
+    
+    if (closeInquiryBtn && floatingInquiry) {
+        closeInquiryBtn.addEventListener('click', function() {
+            // Hide the inquiry with animation
+            floatingInquiry.classList.add('animate__animated', 'animate__fadeOutDown');
+            
+            setTimeout(() => {
+                floatingInquiry.classList.add('hidden');
+                floatingInquiry.classList.remove('animate__animated', 'animate__fadeOutDown');
+                inquiryVisible = false;
+            }, 500);
+            
+            // Clear any existing timeout
+            if (inquiryTimeout) {
+                clearTimeout(inquiryTimeout);
+            }
+            
+            // Set timeout to show it again after 30 seconds (shorter for testing)
+            inquiryTimeout = setTimeout(() => {
+                if (!inquiryVisible && floatingInquiry) {
+                    floatingInquiry.classList.remove('hidden');
+                    floatingInquiry.classList.add('animate__animated', 'animate__fadeInUp');
+                    inquiryVisible = true;
+                    
+                    setTimeout(() => {
+                        floatingInquiry.classList.remove('animate__animated', 'animate__fadeInUp');
+                    }, 500);
+                }
+            }, 30 * 1000); // 30 seconds for testing, can change to longer time in production
+        });
+    }
+    
+    // Update Telegram bot links with the actual username
+    const TELEGRAM_BOT_USERNAME = 'your_bot_username'; // Replace with actual bot username
+    document.querySelectorAll('.inquiry-option').forEach(option => {
+        // Get the symptom text in the currently active language
+        const getOptionText = () => {
+            const isUz = langUz.classList.contains('active');
+            const textElement = option.querySelector(isUz ? '.lang-uz' : '.lang-ru');
+            return textElement ? textElement.textContent.trim() : '';
+        };
+        
+        option.addEventListener('click', function(e) {
+            const symptom = getOptionText();
+            this.href = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=symptom_${symptom.toLowerCase().replace(/\s+/g, '_')}`;
+        });
+    });
+    
+    // Ensure inquiry is always visible but not overlapping with footer
+    function adjustInquiryPosition() {
+        if (!floatingInquiry) return;
+        
+        if (window.innerWidth <= 576) {
+            const footer = document.querySelector('.footer');
+            if (footer) {
+                const footerRect = footer.getBoundingClientRect();
+                if (footerRect.top < window.innerHeight) {
+                    floatingInquiry.style.bottom = `${window.innerHeight - footerRect.top + 10}px`;
+                } else {
+                    floatingInquiry.style.bottom = '10px';
+                }
+            }
+        } else {
+            floatingInquiry.style.bottom = '20px';
+        }
+    }
+    
+    window.addEventListener('scroll', adjustInquiryPosition);
+    window.addEventListener('resize', adjustInquiryPosition);
+    setTimeout(adjustInquiryPosition, 300);
+});
