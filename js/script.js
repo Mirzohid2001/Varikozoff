@@ -1,4 +1,47 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Полностью отключить модальное окно записи и перенаправлять на внешний сайт
+    const appointmentModal = document.getElementById('appointmentModal');
+    if (appointmentModal) {
+        // Удалить модальное окно из DOM, чтобы оно никогда не показывалось
+        appointmentModal.remove();
+    }
+    
+    // Перехватить все способы открытия модального окна
+    document.addEventListener('click', function(event) {
+        const target = event.target.closest('[data-bs-toggle="modal"][data-bs-target="#appointmentModal"]');
+        if (target) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
+            return false;
+        }
+    }, true); // Используем capture=true для перехвата события до bootstrap
+    
+    // Перехватить программное открытие модального окна
+    const originalModalShow = bootstrap?.Modal?.prototype?.show;
+    if (originalModalShow) {
+        bootstrap.Modal.prototype.show = function() {
+            if (this._element && this._element.id === 'appointmentModal') {
+                window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
+                return;
+            }
+            originalModalShow.apply(this, arguments);
+        };
+    }
+    
+    // Redirect all "QABULGA YOZILISH" buttons to appointment page
+    document.querySelectorAll('button, a').forEach(el => {
+        el.addEventListener('click', function(event) {
+            const uzText = el.querySelector('.lang-uz')?.textContent?.trim();
+            if (uzText === 'QABULGA YOZILISH' || uzText === 'Qabulga yozilish') {
+                event.preventDefault();
+                event.stopPropagation();
+                window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
+                return false;
+            }
+        });
+    });
+
     // Language Switcher
     const langUz = document.getElementById('langUz');
     const langRu = document.getElementById('langRu');
