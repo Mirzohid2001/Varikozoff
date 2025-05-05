@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Мгновенно исправить ссылки Telegram, если они содержат @ в URL
+    document.querySelectorAll('a[href*="t.me/@"]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.includes('t.me/@')) {
+            link.setAttribute('href', href.replace('t.me/@', 't.me/'));
+        }
+    });
+    
     // Полностью отключить модальное окно записи и перенаправлять на внешний сайт
     const appointmentModal = document.getElementById('appointmentModal');
     if (appointmentModal) {
@@ -337,19 +345,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // Update Telegram bot links with the actual username
-    const TELEGRAM_BOT_USERNAME = 'your_bot_username'; // Replace with actual bot username
+    const TELEGRAM_BOT_USERNAME = 'dr_ulugbek_ruziyevich'; // Аккаунт доктора
     document.querySelectorAll('.inquiry-option').forEach(option => {
-        // Get the symptom text in the currently active language
-        const getOptionText = () => {
-            const isUz = langUz.classList.contains('active');
-            const textElement = option.querySelector(isUz ? '.lang-uz' : '.lang-ru');
-            return textElement ? textElement.textContent.trim() : '';
-        };
+        // Устанавливаем прямую ссылку на аккаунт доктора
+        option.href = 'https://t.me/dr_ulugbek_ruziyevich';
         
-        option.addEventListener('click', function(e) {
-            const symptom = getOptionText();
-            this.href = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=symptom_${symptom.toLowerCase().replace(/\s+/g, '_')}`;
-        });
+        // Удаляем все обработчики событий, которые могли быть назначены ранее
+        const oldOption = option.cloneNode(true);
+        option.parentNode.replaceChild(oldOption, option);
     });
     
     // Ensure inquiry is always visible but not overlapping with footer
