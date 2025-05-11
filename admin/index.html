@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VARIKOZ OFF - Админ-панель</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Добавляем Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Добавляем AOS для анимаций -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0c8a7b;
+            --primary-light: rgba(12, 138, 123, 0.1);
+            --primary-dark: #097568;
+            --secondary-color: #17a2b8;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --grey-color: #6c757d;
+            --card-border-radius: 12px;
+            --btn-border-radius: 8px;
+            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            background-image: linear-gradient(to right, rgba(12, 138, 123, 0.03), rgba(23, 162, 184, 0.03));
+            font-family: 'Montserrat', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        .admin-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.8rem;
+            border-radius: var(--card-border-radius);
+            margin-bottom: 2.5rem;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+            transform: rotate(45deg);
+        }
+        
+        .admin-card {
+            background-color: white;
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-card:hover {
+            box-shadow: var(--box-shadow);
+            transform: translateY(-5px);
+            border-color: rgba(12, 138, 123, 0.1);
+        }
+        
+        .stat-card {
+            border-left: 5px solid;
+            transition: var(--transition);
+            cursor: default;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover::after {
+            opacity: 1;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card-primary {
+            border-left-color: var(--primary-color);
+            background: linear-gradient(to right, rgba(12, 138, 123, 0.05) 0%, rgba(12, 138, 123, 0.01) 100%);
+        }
+        
+        .stat-card-info {
+            border-left-color: var(--secondary-color);
+            background: linear-gradient(to right, rgba(23, 162, 184, 0.05) 0%, rgba(23, 162, 184, 0.01) 100%);
+        }
+        
+        .stat-card-success {
+            border-left-color: var(--success-color);
+            background: linear-gradient(to right, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.01) 100%);
+        }
+        
+        .stat-card-warning {
+            border-left-color: var(--warning-color);
+            background: linear-gradient(to right, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.01) 100%);
+        }
+        
+        .stat-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background-color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.5s ease;
+        }
+        
+        .stat-card:hover .stat-card-icon {
+            transform: rotateY(180deg);
+        }
+        
+        .stat-card-primary .stat-card-icon {
+            color: var(--primary-color);
+        }
+        
+        .stat-card-info .stat-card-icon {
+            color: var(--secondary-color);
+        }
+        
+        .stat-card-success .stat-card-icon {
+            color: var(--success-color);
+        }
+        
+        .stat-card-warning .stat-card-icon {
+            color: var(--warning-color);
+        }
+        
+        .stat-card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .stat-card-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            transition: all 0.5s ease;
+            background: linear-gradient(135deg, #333 0%, #000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .stat-card:hover .stat-card-number {
+            transform: scale(1.1);
+            background-position: right;
+        }
+        
+        .stat-card-title {
+            font-size: 0.9rem;
+            color: var(--grey-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-top: auto;
+        }
+        
+        .stat-card-primary .stat-card-title {
+            color: var(--primary-color);
+        }
+        
+        .stat-card-info .stat-card-title {
+            color: var(--secondary-color);
+        }
+        
+        .stat-card-success .stat-card-title {
+            color: var(--success-color);
+        }
+        
+        .stat-card-warning .stat-card-title {
+            color: var(--warning-color);
+        }
+        
+        .table th {
+            background-color: var(--light-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            border: none !important;
+            padding: 1rem;
+        }
+        
+        .table tr {
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .table tr:hover {
+            background-color: rgba(12, 138, 123, 0.03);
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--btn-border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none;
+            box-shadow: 0 4px 8px rgba(12, 138, 123, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(12, 138, 123, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #c82333 100%);
+            border: none;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-light {
+            background: white;
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-light:hover {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            border-color: rgba(12, 138, 123, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn i {
+            margin-right: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .btn:hover i {
+            transform: rotate(15deg);
+        }
+        
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 350px;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--card-border-radius);
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: slideInRight 0.5s forwards;
+        }
+        
+        .alert.alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 5px solid var(--success-color);
+            color: #155724;
+        }
+        
+        .alert.alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 5px solid var(--danger-color);
+            color: #721c24;
+        }
+        
+        .alert.alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 5px solid var(--warning-color);
+            color: #856404;
+        }
+        
+        .alert.alert-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border-left: 5px solid var(--secondary-color);
+            color: #0c5460;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+        
+        .chart-container:hover {
+            transform: scale(1.01);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(12, 138, 123, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(12, 138, 123, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(12, 138, 123, 0);
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .rotate {
+            animation: rotate 15s linear infinite;
+        }
+        
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+        
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+        
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+        
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+        
+        /* Медиа-запросы для адаптивности */
+        @media (max-width: 1200px) {
+            .admin-container {
+                padding: 1.5rem;
+            }
+            .stat-card-number {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+            .admin-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            .admin-header .d-flex {
+                flex-direction: column;
+            }
+            .admin-header h1 {
+                margin-bottom: 1rem;
+                font-size: 1.8rem;
+            }
+            .admin-header .btn {
+                margin-top: 0.5rem;
+                width: 100%;
+            }
+            .chart-container {
+                height: 240px;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+            .stat-card-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .admin-container {
+                padding: 1rem;
+            }
+            .admin-card {
+                padding: 1.2rem;
+            }
+            .chart-container {
+                height: 200px;
+            }
+            .table {
+                font-size: 0.9rem;
+            }
+            .stat-card-number {
+                font-size: 1.6rem;
+            }
+            .stat-card-title {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header d-flex justify-content-between align-items-center" data-aos="fade-down">
+            <h1><i class="fas fa-user-shield me-2"></i> VARIKOZ OFF <span class="d-none d-md-inline">Админ-панель</span></h1>
+            <div class="d-flex gap-2">
+                <button id="refreshBtn" class="btn btn-light">
+                    <i class="fas fa-sync-alt"></i> <span class="d-none d-sm-inline">Обновить</span>
+                </button>
+                <button id="exportBtn" class="btn btn-light">
+                    <i class="fas fa-file-export"></i> <span class="d-none d-sm-inline">Экспорт</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Новая секция со статистикой -->
+        <div class="row">
+            <!-- Карточки статистики -->
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="admin-card stat-card stat-card-primary">
+                    <div class="stat-card-icon float">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-number" id="totalAppointments">0</div>
+                        <div class="stat-card-title">Всего заявок</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="admin-card stat-card stat-card-info">
+                    <div class="stat-card-icon float">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-number" id="weeklyAppointments">0</div>
+                        <div class="stat-card-title">За неделю</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="admin-card stat-card stat-card-success">
+                    <div class="stat-card-icon float">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-number" id="todayAppointments">0</div>
+                        <div class="stat-card-title">Сегодня</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="admin-card stat-card stat-card-warning">
+                    <div class="stat-card-icon float">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-card-number" id="conversionRate">0%</div>
+                        <div class="stat-card-title">Конверсия</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Графики -->
+        <div class="row">
+            <!-- График заявок по дням недели -->
+            <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="150">
+                <div class="admin-card">
+                    <h4 class="section-title">Статистика по дням недели</h4>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                    <div class="text-center text-muted small mt-2">
+                        <i class="fas fa-info-circle me-1"></i> Распределение заявок по дням недели
+                    </div>
+                </div>
+            </div>
+            
+            <!-- График заявок по месяцам -->
+            <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="250">
+                <div class="admin-card">
+                    <h4 class="section-title">Статистика по месяцам</h4>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                    <div class="text-center text-muted small mt-2">
+                        <i class="fas fa-info-circle me-1"></i> Распределение заявок по месяцам года
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Дополнительная статистика -->
+        <div class="row mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="col-12">
+                <div class="admin-card">
+                    <h4 class="section-title">Динамика заявок</h4>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <div class="text-center text-muted small mt-2">
+                        <i class="fas fa-info-circle me-1"></i> Динамика поступления заявок за последние 10 дней
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-card" data-aos="fade-up" data-aos-delay="350">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title mb-0">Заявки на прием</h2>
+                <div class="form-group d-flex mb-0" style="max-width: 250px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Поиск...">
+                    <button id="searchBtn" class="btn btn-primary ms-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="alert-container" id="alertContainer"></div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Имя</th>
+                            <th>Телефон</th>
+                            <th>Сообщение</th>
+                            <th>Дата создания</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointmentsTableBody">
+                        <!-- Данные будут загружены через JavaScript -->
+                    </tbody>
+                </table>
+                
+                <div id="noDataMessage" class="alert alert-info text-center" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i> Нет доступных заявок
+                </div>
+            </div>
+            
+            <nav aria-label="Page navigation" class="mt-4 d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Показано <span id="showingCount">0</span> из <span id="totalCount">0</span> заявок
+                </div>
+                <ul class="pagination justify-content-end mb-0" id="pagination">
+                    <!-- Пагинация будет добавлена через JavaScript -->
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-4 text-center text-muted small py-3" data-aos="fade-up" data-aos-delay="400">
+            <p>© 2025 VARIKOZ OFF Admin Panel. Все права защищены.</p>
+            <p>Разработано <a href="#" class="text-decoration-none">VarikozOff Team</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация AOS анимаций
+            AOS.init({
+                duration: 800,
+                once: false,
+                mirror: true
+            });
+            
+            const appointmentsTableBody = document.getElementById('appointmentsTableBody');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const alertContainer = document.getElementById('alertContainer');
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const pagination = document.getElementById('pagination');
+            const showingCountElement = document.getElementById('showingCount');
+            const totalCountElement = document.getElementById('totalCount');
+            
+            // Элементы статистики
+            const totalAppointmentsElement = document.getElementById('totalAppointments');
+            const weeklyAppointmentsElement = document.getElementById('weeklyAppointments');
+            const todayAppointmentsElement = document.getElementById('todayAppointments');
+            const conversionRateElement = document.getElementById('conversionRate');
+            
+            // Графики
+            let weeklyChart, monthlyChart, trendChart;
+            
+            // Настройки пагинации
+            const itemsPerPage = 5;
+            let currentPage = 1;
+            let filteredAppointments = [];
+            
+            // Поиск по таблице
+            searchBtn.addEventListener('click', function() {
+                searchAppointments();
+            });
+            
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchAppointments();
+                }
+            });
+            
+            function searchAppointments() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                
+                if (searchTerm === '') {
+                    filteredAppointments = [...appointments];
+                } else {
+                    filteredAppointments = appointments.filter(app => 
+                        (app.name && app.name.toLowerCase().includes(searchTerm)) ||
+                        (app.phone && app.phone.toLowerCase().includes(searchTerm)) ||
+                        (app.message && app.message.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                currentPage = 1;
+                renderAppointments();
+                updatePagination();
+                
+                const animation = searchBtn.querySelector('i');
+                animation.classList.add('fa-spin');
+                setTimeout(() => {
+                    animation.classList.remove('fa-spin');
+                }, 500);
+                
+                if (searchTerm !== '' && filteredAppointments.length === 0) {
+                    showAlert('По вашему запросу ничего не найдено', 'info');
+                }
+            }
+            
+            // Функция для создания пагинации
+            function updatePagination() {
+                const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
+                pagination.innerHTML = '';
+                
+                if (totalPages <= 1) {
+                    return;
+                }
+                
+                // Кнопка "Предыдущая"
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>`;
+                prevLi.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderAppointments();
+                        updatePagination();
+                    }
+                });
+                pagination.appendChild(prevLi);
+                
+                // Цифровые страницы
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                    li.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = i;
+                        renderAppointments();
+                        updatePagination();
+                    });
+                    pagination.appendChild(li);
+                }
+                
+                // Кнопка "Следующая"
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>`;
+                nextLi.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderAppointments();
+                        updatePagination();
+                    }
+                });
+                pagination.appendChild(nextLi);
+                
+                // Обновляем счетчик
+                const start = (currentPage - 1) * itemsPerPage + 1;
+                const end = Math.min(start + itemsPerPage - 1, filteredAppointments.length);
+                showingCountElement.textContent = filteredAppointments.length > 0 ? `${start}-${end}` : '0';
+                totalCountElement.textContent = filteredAppointments.length;
+            }
+            
+            // Функция для отображения заявок с учетом пагинации
+            function renderAppointments() {
+                appointmentsTableBody.innerHTML = '';
+                
+                if (filteredAppointments.length === 0) {
+                    noDataMessage.style.display = 'block';
+                    return;
+                }
+                
+                noDataMessage.style.display = 'none';
+                
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = Math.min(start + itemsPerPage, filteredAppointments.length);
+                const pagedAppointments = filteredAppointments.slice(start, end);
+                
+                pagedAppointments.forEach((appointment, index) => {
+                    const actualIndex = start + index + 1;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${actualIndex}</td>
+                        <td><span class="fw-medium">${escapeHtml(appointment.name)}</span></td>
+                        <td><a href="tel:${appointment.phone}" class="text-decoration-none">${escapeHtml(appointment.phone)}</a></td>
+                        <td>${escapeHtml(appointment.message || '-')}</td>
+                        <td>${formatDate(appointment.created_at)}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-danger delete-btn" data-id="${appointment.id}" title="Удалить">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    appointmentsTableBody.appendChild(row);
+                    
+                    // Добавляем анимацию появления строки
+                    setTimeout(() => {
+                        row.style.transform = 'translateX(0)';
+                        row.style.opacity = '1';
+                    }, 50 * index);
+                });
+                
+                // Стилизация строк с анимацией
+                appointmentsTableBody.querySelectorAll('tr').forEach((row, index) => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.transform = 'translateX(-20px)';
+                    row.style.opacity = '0';
+                });
+                
+                // Добавляем обработчики для кнопок удаления
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        deleteAppointment(id);
+                    });
+                });
+            }
+            
+            // Функция для загрузки заявок из localStorage
+            function loadAppointments() {
+                const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                
+                // Сортируем заявки по убыванию даты создания
+                appointments.sort((a, b) => {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+                
+                filteredAppointments = [...appointments];
+                
+                renderAppointments();
+                updatePagination();
+                
+                return appointments;
+            }
+            
+            // Функция для удаления заявки
+            function deleteAppointment(id) {
+                // Находим карточку в DOM и добавляем анимацию удаления
+                const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+                
+                // Анимация удаления
+                row.style.transition = 'all 0.5s ease';
+                row.style.transform = 'translateX(50px)';
+                row.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (confirm('Вы уверены, что хотите удалить эту заявку?')) {
+                        let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                        
+                        // Находим индекс заявки по ID
+                        const index = appointments.findIndex(app => app.id === id);
+                        
+                        if (index !== -1) {
+                            // Удаляем заявку из массива
+                            appointments.splice(index, 1);
+                            
+                            // Сохраняем обновленный массив в localStorage
+                            localStorage.setItem('appointments', JSON.stringify(appointments));
+                            
+                            // Обновляем внутренний массив
+                            filteredAppointments = appointments.filter(app => filteredAppointments.some(fa => fa.id === app.id));
+                            
+                            // Перезагружаем таблицу
+                            renderAppointments();
+                            updatePagination();
+                            
+                            // Обновляем статистику
+                            updateStatistics();
+                            
+                            // Показываем уведомление
+                            showAlert('Заявка успешно удалена', 'success');
+                        }
+                    } else {
+                        // Если отменено, возвращаем анимацию назад
+                        row.style.transform = 'translateX(0)';
+                        row.style.opacity = '1';
+                    }
+                }, 300);
+            }
+            
+            // Функция для экспорта заявок в CSV
+            function exportAppointments() {
+                const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                
+                if (appointments.length === 0) {
+                    showAlert('Нет данных для экспорта', 'warning');
+                    return;
+                }
+                
+                // Анимация кнопки экспорта
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Экспорт...';
+                exportBtn.disabled = true;
+                
+                setTimeout(() => {
+                    // Создаем заголовки для CSV
+                    let csvContent = 'ID,Имя,Телефон,Сообщение,Дата создания\n';
+                    
+                    // Добавляем данные
+                    appointments.forEach(app => {
+                        const row = [
+                            app.id,
+                            `"${app.name ? app.name.replace(/"/g, '""') : ''}"`,
+                            `"${app.phone ? app.phone.replace(/"/g, '""') : ''}"`,
+                            `"${(app.message || '').replace(/"/g, '""')}"`,
+                            `"${app.created_at || ''}"`
+                        ].join(',');
+                        
+                        csvContent += row + '\n';
+                    });
+                    
+                    // Создаем Blob и ссылку для скачивания
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `varikozoff_appointments_${new Date().toISOString().slice(0, 10)}.csv`);
+                    link.style.visibility = 'hidden';
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Восстанавливаем кнопку
+                    exportBtn.innerHTML = '<i class="fas fa-file-export"></i> Экспорт';
+                    exportBtn.disabled = false;
+                    
+                    showAlert('Экспорт успешно выполнен', 'success');
+                }, 1000);
+            }
+            
+            // Функция для отображения уведомлений
+            function showAlert(message, type) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                alertContainer.appendChild(alert);
+                
+                // Добавляем звуковой эффект для важных уведомлений
+                if (type === 'success' || type === 'danger') {
+                    const audio = new Audio(type === 'success' ? 
+                        'https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3' : 
+                        'https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+                    audio.volume = 0.2;
+                    audio.play().catch(e => console.log('Звук не воспроизведен:', e));
+                }
+                
+                setTimeout(() => {
+                    alert.classList.add('fade-out');
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 500);
+                }, 3000);
+            }
+            
+            // Вспомогательная функция для экранирования HTML
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Форматирование даты
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) {
+                        return dateString; // Если невозможно разобрать дату, возвращаем исходную строку
+                    }
+                    
+                    const today = new Date();
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    if (date.toDateString() === today.toDateString()) {
+                        return `<span class="badge bg-success">Сегодня</span> ${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+                    } else if (date.toDateString() === yesterday.toDateString()) {
+                        return `<span class="badge bg-info">Вчера</span> ${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+                    } else {
+                        return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) + 
+                               ' ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                    }
+                } catch (e) {
+                    console.error("Ошибка форматирования даты:", e);
+                    return dateString;
+                }
+            }
+            
+            // Функция обновления статистики
+            function updateStatistics() {
+                const appointments = loadAppointments();
+                
+                // Анимация счетчиков
+                animateCounter(totalAppointmentsElement, 0, appointments.length, 1000);
+                
+                // Заявки за последнюю неделю
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                
+                const weeklyAppointments = appointments.filter(app => {
+                    const appDate = new Date(app.created_at);
+                    return appDate >= oneWeekAgo;
+                });
+                
+                animateCounter(weeklyAppointmentsElement, 0, weeklyAppointments.length, 1200);
+                
+                // Заявки за сегодня
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todayAppointments = appointments.filter(app => {
+                    const appDate = new Date(app.created_at);
+                    return appDate >= today;
+                });
+                
+                animateCounter(todayAppointmentsElement, 0, todayAppointments.length, 1400);
+                
+                // Рассчитываем конверсию
+                const conversionRate = appointments.length > 0 ? 
+                    Math.floor((todayAppointments.length / appointments.length) * 100) : 0;
+                
+                animateCounter(conversionRateElement, 0, conversionRate, 1600, '%');
+                
+                // Обновляем графики
+                updateCharts(appointments);
+            }
+            
+            // Анимация счетчика
+            function animateCounter(element, start, end, duration, suffix = '') {
+                const startTime = performance.now();
+                const updateInterval = 16; // примерно 60fps
+                
+                function updateCounter(currentTime) {
+                    const elapsedTime = currentTime - startTime;
+                    const progress = Math.min(elapsedTime / duration, 1);
+                    
+                    // Функция замедления в конце
+                    const easeOutQuad = function(t) {
+                        return t * (2 - t);
+                    };
+                    
+                    const easedProgress = easeOutQuad(progress);
+                    const currentValue = Math.floor(start + (end - start) * easedProgress);
+                    
+                    element.textContent = currentValue + suffix;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        element.textContent = end + suffix;
+                    }
+                }
+                
+                requestAnimationFrame(updateCounter);
+            }
+            
+            // Функция обновления графиков
+            function updateCharts(appointments) {
+                // Получаем данные по дням недели
+                const daysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+                const dayCount = new Array(7).fill(0);
+                
+                // Получаем данные по месяцам
+                const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+                const monthCount = new Array(12).fill(0);
+                
+                // Данные для тренда (последние 10 дней)
+                const last10Days = [];
+                const last10DaysData = [];
+                
+                for (let i = 9; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    last10Days.push(date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }));
+                    last10DaysData.push(0);
+                }
+                
+                // Градиентные заливки для графиков
+                function createGradientFill(ctx, colorStart, colorEnd) {
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, colorStart);
+                    gradient.addColorStop(1, colorEnd);
+                    return gradient;
+                }
+                
+                // Анализируем все заявки
+                appointments.forEach(app => {
+                    try {
+                        const appDate = new Date(app.created_at);
+                        
+                        if (!isNaN(appDate.getTime())) {
+                            // Считаем по дням недели
+                            dayCount[appDate.getDay()]++;
+                            
+                            // Считаем по месяцам
+                            monthCount[appDate.getMonth()]++;
+                            
+                            // Для тренда
+                            const today = new Date();
+                            const diffTime = Math.abs(today - appDate);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                            
+                            if (diffDays < 10) {
+                                last10DaysData[9 - diffDays]++;
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Ошибка обработки даты:", e, app);
+                    }
+                });
+                
+                // Создаем или обновляем график по дням недели
+                if (weeklyChart) {
+                    weeklyChart.data.datasets[0].data = dayCount;
+                    weeklyChart.update();
+                } else {
+                    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+                    
+                    // Создаем градиент
+                    const gradientFill = createGradientFill(weeklyCtx, 'rgba(12, 138, 123, 0.8)', 'rgba(12, 138, 123, 0.2)');
+                    
+                    weeklyChart = new Chart(weeklyCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: daysOfWeek,
+                            datasets: [{
+                                label: 'Количество заявок',
+                                data: dayCount,
+                                backgroundColor: gradientFill,
+                                borderColor: 'rgba(12, 138, 123, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                hoverBackgroundColor: 'rgba(12, 138, 123, 1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1500,
+                                easing: 'easeOutQuart'
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    titleFont: {
+                                        size: 14
+                                    },
+                                    bodyFont: {
+                                        size: 13
+                                    },
+                                    displayColors: false
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Создаем или обновляем график по месяцам
+                if (monthlyChart) {
+                    monthlyChart.data.datasets[0].data = monthCount;
+                    monthlyChart.update();
+                } else {
+                    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+                    
+                    // Создаем градиент
+                    const gradientFill = createGradientFill(monthlyCtx, 'rgba(23, 162, 184, 0.8)', 'rgba(23, 162, 184, 0.2)');
+                    
+                    monthlyChart = new Chart(monthlyCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Количество заявок',
+                                data: monthCount,
+                                backgroundColor: gradientFill,
+                                borderColor: 'rgba(23, 162, 184, 1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                hoverBackgroundColor: 'rgba(23, 162, 184, 1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1500,
+                                easing: 'easeOutQuart'
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    titleFont: {
+                                        size: 14
+                                    },
+                                    bodyFont: {
+                                        size: 13
+                                    },
+                                    displayColors: false
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Создаем или обновляем график тренда
+                if (trendChart) {
+                    trendChart.data.datasets[0].data = last10DaysData;
+                    trendChart.update();
+                } else {
+                    const trendCtx = document.getElementById('trendChart').getContext('2d');
+                    
+                    // Создаем градиент
+                    const gradientFill = createGradientFill(trendCtx, 'rgba(40, 167, 69, 0.6)', 'rgba(40, 167, 69, 0.1)');
+                    
+                    trendChart = new Chart(trendCtx, {
+                        type: 'line',
+                        data: {
+                            labels: last10Days,
+                            datasets: [{
+                                label: 'Количество заявок',
+                                data: last10DaysData,
+                                backgroundColor: gradientFill,
+                                borderColor: 'rgba(40, 167, 69, 1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: 'rgba(40, 167, 69, 1)',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                pointHoverBackgroundColor: 'rgba(40, 167, 69, 1)',
+                                pointHoverBorderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 2000,
+                                easing: 'easeOutQuart'
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    titleFont: {
+                                        size: 14
+                                    },
+                                    bodyFont: {
+                                        size: 13
+                                    },
+                                    displayColors: false
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Инициализация
+            updateStatistics();
+            
+            // Обработчики событий
+            refreshBtn.addEventListener('click', function() {
+                // Анимируем иконку обновления
+                const refreshIcon = refreshBtn.querySelector('i');
+                refreshIcon.classList.add('fa-spin');
+                
+                setTimeout(() => {
+                    updateStatistics();
+                    refreshIcon.classList.remove('fa-spin');
+                    showAlert('Данные обновлены', 'info');
+                }, 800);
+            });
+            
+            exportBtn.addEventListener('click', exportAppointments);
+            
+            // Обработчик изменения размера окна для обновления графиков
+            window.addEventListener('resize', function() {
+                if (weeklyChart) weeklyChart.resize();
+                if (monthlyChart) monthlyChart.resize();
+                if (trendChart) trendChart.resize();
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

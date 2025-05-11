@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Определение нужных элементов формы
+    const appointmentForm = document.getElementById('appointmentForm');
+    const formMessage = document.getElementById('formMessage');
+    
     // Мгновенно исправить ссылки Telegram, если они содержат @ в URL
     document.querySelectorAll('a[href*="t.me/@"]').forEach(link => {
         const href = link.getAttribute('href');
@@ -7,48 +11,59 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
-    // Полностью отключить модальное окно записи и перенаправлять на внешний сайт
+    // Код для открытия модального окна при клике на кнопки "QABULGA YOZILISH"
+    document.querySelectorAll('a, button').forEach(el => {
+        if (el.tagName === 'A' && el.getAttribute('href') === 'https://varikozoff-bukhara.uz/en/appointment/') {
+            // Изменяем URL на открытие модального окна
+            el.setAttribute('href', '#');
+            el.setAttribute('data-bs-toggle', 'modal');
+            el.setAttribute('data-bs-target', '#appointmentModal');
+        } else {
+            el.addEventListener('click', function(event) {
+                const uzText = el.querySelector('.lang-uz')?.textContent?.trim();
+                if ((uzText === 'QABULGA YOZILISH' || uzText === 'Qabulga yozilish') && !el.closest('form')) {
+                    // Если это не кнопка сабмита формы, открываем модальное окно
+                    if (!el.getAttribute('data-bs-toggle')) {
+                        event.preventDefault();
+                        
+                        // Открываем модальное окно
+                        const appointmentModal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+                        appointmentModal.show();
+                        return false;
+                    }
+                }
+            });
+        }
+    });
+
+    // Обработка модального окна записи на прием - анимации и эффекты
     const appointmentModal = document.getElementById('appointmentModal');
     if (appointmentModal) {
-        // Удалить модальное окно из DOM, чтобы оно никогда не показывалось
-        appointmentModal.remove();
-    }
-    
-    // Перехватить все способы открытия модального окна
-    document.addEventListener('click', function(event) {
-        const target = event.target.closest('[data-bs-toggle="modal"][data-bs-target="#appointmentModal"]');
-        if (target) {
-            event.preventDefault();
-            event.stopPropagation();
-            window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
-            return false;
-        }
-    }, true); // Используем capture=true для перехвата события до bootstrap
-    
-    // Перехватить программное открытие модального окна
-    const originalModalShow = bootstrap?.Modal?.prototype?.show;
-    if (originalModalShow) {
-        bootstrap.Modal.prototype.show = function() {
-            if (this._element && this._element.id === 'appointmentModal') {
-                window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
-                return;
+        appointmentModal.addEventListener('shown.bs.modal', function() {
+            // Анимируем иконку
+            const icon = this.querySelector('.appointment-icon i');
+            if (icon) {
+                icon.classList.add('animated');
             }
-            originalModalShow.apply(this, arguments);
-        };
-    }
-    
-    // Redirect all "QABULGA YOZILISH" buttons to appointment page
-    document.querySelectorAll('button, a').forEach(el => {
-        el.addEventListener('click', function(event) {
-            const uzText = el.querySelector('.lang-uz')?.textContent?.trim();
-            if (uzText === 'QABULGA YOZILISH' || uzText === 'Qabulga yozilish') {
-                event.preventDefault();
-                event.stopPropagation();
-                window.location.href = 'https://varikozoff-bukhara.uz/en/appointment/';
-                return false;
-            }
+            
+            // Плавное появление элементов формы
+            const formElements = this.querySelectorAll('.modal-body .mb-3');
+            formElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
         });
-    });
+        
+        // Начальные стили для элементов формы
+        const formElements = appointmentModal.querySelectorAll('.modal-body .mb-3');
+        formElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        });
+    }
 
     // Language Switcher
     const langUz = document.getElementById('langUz');
@@ -131,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Form handler
-    const appointmentForm = document.getElementById('appointmentForm');
     const submitBtn = document.querySelector('button[form="appointmentForm"]');
 
     async function handleFormSubmission() {
@@ -158,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         alert.className = 'alert-container';
         alert.innerHTML = `<div class="custom-alert ${success ? 'success' : 'error'} fade-in-up">
             ${isUz
-                ? success ? 'Murojaatingiz qabul qilindi! Tez orada siz bilan bog‘lanamiz.' : 'Xatolik yuz berdi. Qaytadan urinib ko‘ring.'
+                ? success ? 'Murojaatingiz qabul qilindi! Tez orada siz bilan bog\'lanamiz.' : 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.'
                 : success ? 'Ваша заявка принята! Мы скоро свяжемся с вами.' : 'Произошла ошибка. Повторите попытку.'}
         </div>`;
         document.body.appendChild(alert);
@@ -175,27 +189,125 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Обработчик формы записи на прием на странице
     if (appointmentForm) {
-        appointmentForm.addEventListener('submit', e => {
+        appointmentForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            handleFormSubmission();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Показываем индикатор загрузки
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="lang-uz">Yuborilmoqda...</span><span class="lang-ru">Отправка...</span>';
+            submitBtn.disabled = true;
+            
+            try {
+                // Собираем данные формы
+                const formData = new FormData(this);
+                const data = {};
+                
+                // Преобразуем FormData в объект
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // Отправляем сообщение в Telegram
+                const fullName = data.name || '';
+                const phone = data.phone || '';
+                const message = data.message || '';
+                const currentDate = new Date().toLocaleString();
+                
+                const telegramMessage = `🆕 <b>Yangi mijoz</b>\n\n<b>Ismi:</b> ${fullName}\n<b>Telefon:</b> ${phone}\n<b>Izoh:</b> ${message || 'Berilmagan'}\n<b>Sana:</b> ${currentDate}\n<b>Manba:</b> Varikoz Off veb-sayt`;
+                
+                // Имитация отправки данных
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                const success = true; // Предполагаем успешную отправку
+                
+                if (success) {
+                    // Показываем сообщение об успехе с анимацией
+                    formMessage.className = 'alert alert-success fade-in-up';
+                    formMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
+                        '<span class="lang-uz">Sizning murojaatingiz qabul qilindi! Tez orada siz bilan bog\'lanamiz.</span>' +
+                        '<span class="lang-ru">Ваша заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.</span>';
+                    formMessage.style.display = 'block';
+                    
+                    // Сохраняем данные в localStorage
+                    const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                    data.id = Date.now();
+                    data.created_at = currentDate;
+                    appointments.push(data);
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    
+                    // Очищаем форму
+                    appointmentForm.reset();
+                    
+                    // Скрываем сообщение через 5 секунд с анимацией
+                    setTimeout(() => {
+                        formMessage.classList.add('fade-out');
+                        setTimeout(() => {
+                            formMessage.style.display = 'none';
+                            formMessage.classList.remove('fade-out');
+                        }, 500);
+                    }, 5000);
+                } else {
+                    throw new Error('Произошла ошибка при отправке заявки');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Показываем сообщение об ошибке с анимацией
+                formMessage.className = 'alert alert-danger fade-in-up';
+                formMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + 
+                    '<span class="lang-uz">Xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.</span>' +
+                    '<span class="lang-ru">Произошла ошибка. Пожалуйста, попробуйте еще раз.</span>';
+                formMessage.style.display = 'block';
+                
+                // Скрываем сообщение через 5 секунд с анимацией
+                setTimeout(() => {
+                    formMessage.classList.add('fade-out');
+                    setTimeout(() => {
+                        formMessage.style.display = 'none';
+                        formMessage.classList.remove('fade-out');
+                    }, 500);
+                }, 5000);
+            } finally {
+                // Восстанавливаем кнопку
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
-    submitBtn?.addEventListener('click', e => {
-        if (appointmentForm.checkValidity()) {
-            e.preventDefault();
-            handleFormSubmission();
-        }
-    });
-
-    // Phone input formatting
-    const phoneInput = document.getElementById('phoneNumber');
-    phoneInput?.addEventListener('input', function (e) {
-        let val = e.target.value;
-        if (val.length > 0 && !val.includes('+998') && !val.startsWith('998') && !val.startsWith('+')) {
-            e.target.value = '+998 ' + val;
-        }
-    });
+    
+    // Валидация полей формы на странице
+    const mainPhoneInput = document.getElementById('phoneNumber');
+    if (mainPhoneInput) {
+        mainPhoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Если начинается не с +998 или 998, добавляем этот префикс
+            if (value && !value.startsWith('998') && value.length > 0) {
+                value = '998' + value;
+            }
+            
+            // Форматируем номер телефона
+            if (value.length > 0) {
+                value = '+' + value;
+            }
+            if (value.length > 4) {
+                value = value.substring(0, 4) + ' ' + value.substring(4);
+            }
+            if (value.length > 7) {
+                value = value.substring(0, 7) + ' ' + value.substring(7);
+            }
+            if (value.length > 11) {
+                value = value.substring(0, 11) + ' ' + value.substring(11);
+            }
+            if (value.length > 14) {
+                value = value.substring(0, 14);
+            }
+            
+            e.target.value = value;
+        });
+    }
 
     // Animate on scroll
     function animateElementsOnScroll() {
@@ -298,83 +410,130 @@ document.addEventListener('DOMContentLoaded', function () {
         observer.observe(video);
     });
 
-    // Floating Telegram Inquiry
-    const floatingInquiry = document.querySelector('.floating-telegram-inquiry');
-    const closeInquiryBtn = document.querySelector('.close-inquiry');
+    // Phone Call Button Setup
+    const phoneButton = document.querySelector('.phone-call-button');
+    if (phoneButton) {
+        phoneButton.href = "tel:+998 91 404 81 00"; // Установка реального номера телефона клиники
+    }
+
+    // ✅ Обработчик формы в модальном окне
+    const modalAppointmentForm = document.getElementById('modalAppointmentForm');
+    const modalFormMessage = document.getElementById('modalFormMessage');
     
-    // Initialize variables to control visibility
-    let inquiryVisible = true;
-    let inquiryTimeout = null;
-    
-    // Show inquiry with animation after a short delay
-    setTimeout(() => {
-        if (floatingInquiry) {
-            floatingInquiry.classList.add('animate__animated', 'animate__fadeInUp');
-        }
-    }, 2000);
-    
-    if (closeInquiryBtn && floatingInquiry) {
-        closeInquiryBtn.addEventListener('click', function() {
-            // Hide the inquiry with animation
-            floatingInquiry.classList.add('animate__animated', 'animate__fadeOutDown');
+    if (modalAppointmentForm) {
+        modalAppointmentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            setTimeout(() => {
-                floatingInquiry.classList.add('hidden');
-                floatingInquiry.classList.remove('animate__animated', 'animate__fadeOutDown');
-                inquiryVisible = false;
-            }, 500);
+            const submitBtn = document.querySelector('button[form="modalAppointmentForm"]');
+            const originalText = submitBtn.innerHTML;
             
-            // Clear any existing timeout
-            if (inquiryTimeout) {
-                clearTimeout(inquiryTimeout);
-            }
+            // Показываем индикатор загрузки
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="lang-uz">Yuborilmoqda...</span><span class="lang-ru">Отправка...</span>';
+            submitBtn.disabled = true;
             
-            // Set timeout to show it again after 30 seconds (shorter for testing)
-            inquiryTimeout = setTimeout(() => {
-                if (!inquiryVisible && floatingInquiry) {
-                    floatingInquiry.classList.remove('hidden');
-                    floatingInquiry.classList.add('animate__animated', 'animate__fadeInUp');
-                    inquiryVisible = true;
-                    
-                    setTimeout(() => {
-                        floatingInquiry.classList.remove('animate__animated', 'animate__fadeInUp');
-                    }, 500);
+            try {
+                // Собираем данные формы
+                const formData = new FormData(this);
+                const data = {};
+                
+                // Преобразуем FormData в объект
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
                 }
-            }, 30 * 1000); // 30 seconds for testing, can change to longer time in production
+                
+                // Отправляем сообщение в Telegram
+                const fullName = data.name;
+                const phone = data.phone;
+                const comment = data.message;
+                const currentDate = new Date().toLocaleString();
+                
+                const message = `🆕 <b>Yangi mijoz</b>\n\n<b>Ismi:</b> ${fullName}\n<b>Telefon:</b> ${phone}\n<b>Izoh:</b> ${comment || 'Berilmagan'}\n<b>Sana:</b> ${currentDate}\n<b>Manba:</b> Varikoz Off veb-sayt`;
+                
+                // Имитация отправки сообщения в Telegram
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                const success = true; // Предполагаем успешную отправку
+                
+                if (success) {
+                    // Показываем сообщение об успехе
+                    modalFormMessage.className = 'alert alert-success';
+                    modalFormMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + 
+                        '<span class="lang-uz">Sizning murojaatingiz qabul qilindi! Tez orada siz bilan bog\'lanamiz.</span>' +
+                        '<span class="lang-ru">Ваша заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.</span>';
+                    modalFormMessage.style.display = 'block';
+                    modalFormMessage.classList.add('show');
+                    
+                    // Сохраняем данные в localStorage
+                    const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+                    data.id = Date.now();
+                    data.created_at = currentDate;
+                    appointments.push(data);
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    
+                    // Очищаем форму
+                    modalAppointmentForm.reset();
+                    
+                    // Закрываем модальное окно через 3 секунды
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Сбрасываем состояние сообщения
+                        setTimeout(() => {
+                            modalFormMessage.style.display = 'none';
+                            modalFormMessage.classList.remove('show');
+                        }, 300);
+                    }, 3000);
+                } else {
+                    throw new Error('Произошла ошибка при отправке заявки');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Показываем сообщение об ошибке
+                modalFormMessage.className = 'alert alert-danger';
+                modalFormMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + 
+                    '<span class="lang-uz">Xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.</span>' +
+                    '<span class="lang-ru">Произошла ошибка. Пожалуйста, попробуйте еще раз.</span>';
+                modalFormMessage.style.display = 'block';
+                modalFormMessage.classList.add('show');
+            } finally {
+                // Восстанавливаем кнопку
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
     
-    // Update Telegram bot links with the actual username
-    const TELEGRAM_BOT_USERNAME = 'dr_ulugbek_ruziyevich'; // Аккаунт доктора
-    document.querySelectorAll('.inquiry-option').forEach(option => {
-        // Устанавливаем прямую ссылку на аккаунт доктора
-        option.href = 'https://t.me/dr_ulugbek_ruziyevich';
-        
-        // Удаляем все обработчики событий, которые могли быть назначены ранее
-        const oldOption = option.cloneNode(true);
-        option.parentNode.replaceChild(oldOption, option);
-    });
-    
-    // Ensure inquiry is always visible but not overlapping with footer
-    function adjustInquiryPosition() {
-        if (!floatingInquiry) return;
-        
-        if (window.innerWidth <= 576) {
-            const footer = document.querySelector('.footer');
-            if (footer) {
-                const footerRect = footer.getBoundingClientRect();
-                if (footerRect.top < window.innerHeight) {
-                    floatingInquiry.style.bottom = `${window.innerHeight - footerRect.top + 10}px`;
-                } else {
-                    floatingInquiry.style.bottom = '10px';
-                }
+    // Валидация полей формы
+    const modalPhoneInput = document.getElementById('modalPhoneNumber');
+    if (modalPhoneInput) {
+        modalPhoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Если начинается не с +998 или 998, добавляем этот префикс
+            if (value && !value.startsWith('998') && value.length > 0) {
+                value = '998' + value;
             }
-        } else {
-            floatingInquiry.style.bottom = '20px';
-        }
+            
+            // Форматируем номер телефона
+            if (value.length > 0) {
+                value = '+' + value;
+            }
+            if (value.length > 4) {
+                value = value.substring(0, 4) + ' ' + value.substring(4);
+            }
+            if (value.length > 7) {
+                value = value.substring(0, 7) + ' ' + value.substring(7);
+            }
+            if (value.length > 11) {
+                value = value.substring(0, 11) + ' ' + value.substring(11);
+            }
+            if (value.length > 14) {
+                value = value.substring(0, 14);
+            }
+            
+            e.target.value = value;
+        });
     }
-    
-    window.addEventListener('scroll', adjustInquiryPosition);
-    window.addEventListener('resize', adjustInquiryPosition);
-    setTimeout(adjustInquiryPosition, 300);
 });

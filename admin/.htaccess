@@ -1,0 +1,19 @@
+# Запретить доступ из браузера к .htaccess
+<Files .htaccess>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Запретить просмотр директорий
+Options -Indexes
+
+# Защита директории паролем (базовая аутентификация)
+AuthType Basic
+AuthName "VarikozOFF Admin Panel"
+AuthUserFile ./.htpasswd
+Require valid-user
+
+# Перенаправление на HTTPS (раскомментировать, если доступен SSL)
+# RewriteEngine On
+# RewriteCond %{HTTPS} !=on
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L] 

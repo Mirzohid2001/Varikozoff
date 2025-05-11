@@ -11,58 +11,12 @@
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <!-- Floating Telegram Inquiry -->
-    <div class="floating-telegram-inquiry">
-        <div class="inquiry-header">
-            <i class="fab fa-telegram"></i>
-            <span class="lang-uz">Telegramda narxni bilish</span>
-            <span class="lang-ru">Узнайте цену лечения в Telegram-боте</span>
-            <button class="close-inquiry"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="inquiry-content">
-            <p class="inquiry-step">
-                <span class="lang-uz">Savol: 1 dan 3</span>
-                <span class="lang-ru">Вопрос: 1 из 3</span>
-            </p>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <p class="inquiry-question mt-3">
-                <span class="lang-uz">Alomatlarni tanlang</span>
-                <span class="lang-ru">Выберите симптомы</span>
-            </p>
-            <div class="inquiry-options">
-                <a href="https://t.me/dr_ulugbek_ruziyevich" target="_blank" class="inquiry-option">
-                    <div class="option-icon"><i class="fas fa-diagnoses"></i></div>
-                    <div class="option-text">
-                        <span class="lang-uz">Varikoz venalar</span>
-                        <span class="lang-ru">Варикоз вен</span>
+    <!-- Phone Call Button -->
+    <a href="tel:+998 91 404 81 00" class="phone-call-button">
+        <div class="phone-button-circle">
+            <i class="fas fa-phone-alt"></i>
                     </div>
                 </a>
-                <a href="https://t.me/dr_ulugbek_ruziyevich" target="_blank" class="inquiry-option">
-                    <div class="option-icon"><i class="fas fa-tired"></i></div>
-                    <div class="option-text">
-                        <span class="lang-uz">Oyoqlar og'rigi</span>
-                        <span class="lang-ru">Болят ноги</span>
-                    </div>
-                </a>
-                <a href="https://t.me/dr_ulugbek_ruziyevich" target="_blank" class="inquiry-option">
-                    <div class="option-icon"><i class="fas fa-weight"></i></div>
-                    <div class="option-text">
-                        <span class="lang-uz">Oyoqlar shishi</span>
-                        <span class="lang-ru">Отекают ноги</span>
-                    </div>
-                </a>
-                <a href="https://t.me/dr_ulugbek_ruziyevich" target="_blank" class="inquiry-option">
-                    <div class="option-icon"><i class="fas fa-ellipsis-h"></i></div>
-                    <div class="option-text">
-                        <span class="lang-uz">Boshqa...</span>
-                        <span class="lang-ru">Другой...</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
     
     <!-- Header -->
     <header class="header">
@@ -101,7 +55,7 @@
                         <span class="lang-uz"> Buxorodagi Varikozoff klinikasida hozirda 50% chegirma amal qilmoqda!</span>
                         <span class="lang-ru">В клинике Varikozoff в Бухаре сейчас действует скидка 50%!</span>
                     </p>
-                    <a href="https://varikozoff-bukhara.uz/en/appointment/" class="btn btn-primary btn-lg pulse">
+                    <a href="#consultation" class="btn btn-primary btn-lg pulse">
                         <span class="lang-uz">Qabulga yozilish</span>
                         <span class="lang-ru">Записаться на прием</span>
                     </a>
@@ -612,17 +566,23 @@
                                 </p>
                             </div>
                             <div class="col-md-6">
-                                <form class="consultation-form">
+                                <form class="consultation-form" id="appointmentForm">
                                     <div class="mb-3">
-                                        <input type="text" class="form-control" placeholder="Ваше имя" required>
+                                        <input type="text" class="form-control" id="fullName" name="name" placeholder="Ваше имя" required>
                                     </div>
                                     <div class="mb-3">
-                                        <input type="tel" class="form-control" placeholder="Ваш телефон" required>
+                                        <input type="tel" class="form-control" id="phoneNumber" name="phone" placeholder="Ваш телефон" required>
                                     </div>
-                                    <a href="https://varikozoff-bukhara.uz/en/appointment/" class="btn-submit" style="display: inline-block; text-decoration: none; text-align: center;">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" id="message" name="message" placeholder="Сообщение (необязательно)" rows="2"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn-submit">
                                         <span class="lang-uz">QABULGA YOZILISH</span>
-                                        <span class="lang-ru">ОСТАВИТЬ ЗАЯВКУ</span>
-                                    </a>
+                                        <span class="lang-ru">ЗАПИСАТЬСЯ НА ПРИЕМ</span>
+                                    </button>
+                                    <div class="mt-3 text-center">
+                                        <div id="formMessage" class="alert" style="display: none;"></div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -785,10 +745,10 @@
                             <span class="lang-uz">50% faqat 10 kishigacha amal qiladi! Joyingizni bugun band qiling.</span>
                             <span class="lang-ru">50% действует только для 10 человек! Забронируйте свое место сегодня.</span>
                         </h3>
-                        <button class="btn ripple" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                        <a href="#" class="btn ripple" data-bs-toggle="modal" data-bs-target="#appointmentModal">
                             <span class="lang-uz">QABULGA YOZILISH</span>
                             <span class="lang-ru">ЗАПИСАТЬСЯ НА ПРИЕМ</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -897,47 +857,68 @@
     </footer>
 
     <!-- Appointment Modal -->
-    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true" data-bs-focus="false">
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header">
                     <h5 class="modal-title" id="appointmentModalLabel">
-                        <span class="lang-uz">50% Chegirma bilan qabulga yoziling</span>
-                        <span class="lang-ru">Скидка 50% на прием</span>
+                        <span class="lang-uz">Qabulga yozilish</span>
+                        <span class="lang-ru">Записаться на прием</span>
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="appointmentForm">
+                    <div class="text-center mb-4">
+                        <div class="appointment-icon">
+                            <i class="fas fa-calendar-check fa-3x"></i>
+                        </div>
+                        <div class="appointment-intro">
+                            <p class="lang-uz">Qabulga yozilish uchun ma'lumotlaringizni kiriting va biz siz bilan tez orada bog'lanamiz!</p>
+                            <p class="lang-ru">Введите свои данные для записи на прием, и мы скоро свяжемся с вами!</p>
+                        </div>
+                    </div>
+                    <form id="modalAppointmentForm">
                         <div class="mb-3">
-                            <label for="fullName" class="form-label">
+                            <label for="modalFullName" class="form-label">
                                 <span class="lang-uz">To'liq ismingiz</span>
                                 <span class="lang-ru">Ваше полное имя</span>
                             </label>
-                            <input type="text" class="form-control" id="fullName" required>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="modalFullName" name="name" required>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="phoneNumber" class="form-label">
+                            <label for="modalPhoneNumber" class="form-label">
                                 <span class="lang-uz">Telefon raqamingiz</span>
                                 <span class="lang-ru">Ваш номер телефона</span>
                             </label>
-                            <input type="tel" class="form-control" id="phoneNumber" placeholder="+998 ** *** ** **" required>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="tel" class="form-control" id="modalPhoneNumber" name="phone" placeholder="+998" required>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="comment" class="form-label">
+                            <label for="modalComment" class="form-label">
                                 <span class="lang-uz">Qo'shimcha ma'lumot (ixtiyoriy)</span>
                                 <span class="lang-ru">Дополнительная информация (необязательно)</span>
                             </label>
-                            <textarea class="form-control" id="comment" rows="3"></textarea>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-comment"></i></span>
+                                <textarea class="form-control" id="modalComment" name="message" rows="3"></textarea>
+                            </div>
                         </div>
                     </form>
+                    <div class="mt-3 text-center">
+                        <div id="modalFormMessage" class="alert" style="display: none;"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <span class="lang-uz">Bekor qilish</span>
                         <span class="lang-ru">Отмена</span>
                     </button>
-                    <button type="submit" form="appointmentForm" class="btn btn-primary submit-btn">
+                    <button type="submit" form="modalAppointmentForm" class="btn btn-primary submit-btn">
                         <span class="lang-uz">Yuborish</span>
                         <span class="lang-ru">Отправить</span>
                     </button>
@@ -1463,5 +1444,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
 </body>
-</html> 
 </html> 

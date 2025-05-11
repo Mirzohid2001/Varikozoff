@@ -1,1 +1,5 @@
 .qodo
+.idea/
+database/
+*.db
+.htpasswd
